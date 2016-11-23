@@ -109,11 +109,16 @@ class CodeEditor extends React.Component {
     if(!this.state.fileName) {
       alert('Please select a file before attempting to run.');
     } else {
+      context.socket.emit('/TERM/SHOW/', {containerName: context.state.containerName});
       axios.post('/docker/executeFile', {code: document.getElementById('code-editor').value, containerName: this.state.containerName, fileName: this.state.fileName, filePath: this.state.filePath})
       .then(function(resp) {
         const exResponse = resp.data.res;
         var filePath = context.state.filePath.endsWith('/') ? context.state.filePath + context.state.fileName : context.state.filePath + '/' + context.state.fileName;
+        //context.socket.emit('/TERM/SHOW/', {containerName: context.state.containerName});
         context.socket.emit('/TERM/RES/', {cmd: resp.data.cmd + ' ' + filePath, res: exResponse, username: 'FILEBROWSER', containerName: context.state.containerName});
+        context.setState({
+          codeSaved: true
+        });
       })
       .catch(function(err) {
         alert(err.response.data.msg);
